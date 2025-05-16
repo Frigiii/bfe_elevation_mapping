@@ -1,0 +1,20 @@
+elevation_mapping:
+  ros__parameters:
+    # input_sources: ['ground_truth_cloud'] # A name to identify the input source
+    inputs: ['ground_truth_cloud']
+    ground_truth_cloud:
+      type: pointcloud # Supported types: pointcloud
+      topic: /trimesh_self_filter/lidar_boom
+      # topic: /livox/lidar_boom
+      queue_size: 1
+      publish_on_update: true # Whether to publish the elevation map after a callback from this source.
+      sensor_processor:
+        type: laser
+    map_frame_id: "SHOVEL_elevation_map"
+    robot_base_frame_id: "BASE"
+    robot_pose_with_covariance_topic: "" # Leaving this empty skipps pose covariance updates.
+    robot_pose_cache_size: 200
+    track_point_frame_id: ""
+    track_point_x: 0.0
+    track_point_y: 0.0
+    track_point_z: 0.0
