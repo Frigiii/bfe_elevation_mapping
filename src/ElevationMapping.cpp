@@ -597,6 +597,10 @@ bool ElevationMapping::updatePrediction(const rclcpp::Time& time) {
 }
 
 bool ElevationMapping::updateMapLocation() {
+
+  // Sanity check.
+  if (trackPointFrameId_.empty()) return false;
+
   RCLCPP_DEBUG(nodeHandle_->get_logger(), "Elevation map is checked for relocalization.");
 
   geometry_msgs::msg::PointStamped trackPoint;
@@ -608,7 +612,7 @@ bool ElevationMapping::updateMapLocation() {
   try {
     trackPointTransformed = transformBuffer_->transform(trackPoint, map_.getFrameId());
   } catch (tf2::TransformException& ex) {
-    RCLCPP_ERROR(nodeHandle_->get_logger(), "%s", ex.what());
+    RCLCPP_ERROR(nodeHandle_->get_logger(), "[ElevationMapping::updateMapLocation] %s", ex.what());
     return false;
   }
 

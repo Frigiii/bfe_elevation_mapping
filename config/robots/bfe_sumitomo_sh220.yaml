@@ -1,12 +1,20 @@
 elevation_mapping:
   ros__parameters:
-    # input_sources: ['ground_truth_cloud'] # A name to identify the input source
-    inputs: ['ground_truth_cloud']
-    ground_truth_cloud:
+    # input_sources: ['lidar_boom'] # A name to identify the input source
+    inputs: ['lidar_boom', 'lidar_front_left'] # A name to identify the input source
+    lidar_boom:
       type: pointcloud # Supported types: pointcloud
       topic: /trimesh_self_filter/lidar_boom
       # topic: /livox/lidar_boom
-      queue_size: 1
+      queue_size: 10
+      publish_on_update: true # Whether to publish the elevation map after a callback from this source.
+      sensor_processor:
+        type: laser
+    lidar_front_left:
+      type: pointcloud # Supported types: pointcloud
+      topic: /trimesh_self_filter/lidar_front_left
+      # topic: /livox/lidar_front_left
+      queue_size: 10
       publish_on_update: true # Whether to publish the elevation map after a callback from this source.
       sensor_processor:
         type: laser
