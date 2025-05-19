@@ -110,6 +110,9 @@ bool ElevationMap::add(const PointCloudType::Ptr pointCloud, Eigen::VectorXf& po
     basicLayers_.push_back(rawMap_.get(layer));
   }
 
+  // Check, which points are updated.
+  std::vector<bool> updatedCells(rawMap_.getSize().prod(), false);
+
   for (unsigned int i = 0; i < pointCloud->size(); ++i) {
     auto& point = pointCloud->points[i];
     grid_map::Index index;
@@ -199,6 +202,27 @@ bool ElevationMap::add(const PointCloudType::Ptr pointCloud, Eigen::VectorXf& po
     horizontalVarianceY = minHorizontalVariance_;
     horizontalVarianceXY = 0.0;
     // RCLCPP_INFO(nodeHandle_->get_logger(), "Updated map cell: Elevation = %f, Variance = %f", elevation, variance);
+
+    updatedCells[index(0) * rawMap_.getSize()(1) + index(1)] = true;
+  }
+
+  // Increase variance of cells that have not been updated.
+  for (grid_map::GridMapIterator iterator(rawMap_); !iterator.isPastEnd(); ++iterator) {
+    if (!rawMap_.isValid(*iterator)) {
+      continue;
+    }
+    const grid_map::Index index(*iterator);
+    if (!updatedCells[index(0) * rawMap_.getSize()(1) + index(1)]) {
+      // RCLCPP_INFO(nodeHandle_->get_logger(), "Increasing variance of cell that has not been updated.");
+      auto& variance = varianceLayer(index(0), index(1));
+      auto& horizontalVarianceX = horizontalVarianceXLayer(index(0), index(1));
+      auto& horizontalVarianceY = horizontalVarianceYLayer(index(0), index(1));
+      auto& horizontalVarianceXY = horizontalVarianceXYLayer(index(0), index(1));
+      variance += 0.002;
+      horizontalVarianceX += minHorizontalVariance_;
+      horizontalVarianceY += minHorizontalVariance_;
+      horizontalVarianceXY += 0.0;
+    }
   }
 
   //std::stringstream ss;
